@@ -2,6 +2,8 @@ import smallCvimg from '../assets/image/smallCvimg.png'
 import smallCvimg2 from '../assets/image/Screenshot 2024-11-12 224126.png'
 import bigcvimg from "../assets/image/Bigcvimg.png";
 import './Home.css'
+import {Link } from 'react-router-dom';
+
 function Home() {
   return (
     
@@ -14,14 +16,15 @@ function Home() {
                <br /> <p className=" font-sans text-lg w-5/6">Create polished, professional resumes in just a few clicks! Our powerful resume builder offers intuitive features and customizable templates tailored to your needs.
                    Stand out from the competition, impress recruiters, and land your dream job faster. Build your resume today—because first impressions matter!</p>
             </div>
-            <div className="flex justify-evenly"><button className=" h-16 w-36  rounded-lg bg-sky-500 shadow-lg shadow-black ibm-plex-mono-regular-italic  ">Create CV</button>
-              <img className=' h-64 w-44 shadow-2xl  shadow-zinc-500 rounded-md hover:shadow-sky-300   ' src={smallCvimg} alt="" /> 
-             {/* <img className ='cv  shadow-md 'src={smallCvimg2} alt="" />  */}
+            <div className="flex justify-evenly">
+           <Link to='/create'> <button className="  hover:shadow-cyan-300 transition-shadow h-16 w-36  rounded-lg bg-sky-500 shadow-lg shadow-black ibm-plex-mono-regular-italic hover:scale-105 ">Create CV</button></Link>
+             {/* <Link to='/templates'><img className=' h-64 w-44 shadow-2xl  shadow-zinc-500 rounded-md hover:shadow-sky-300 transition-shadow  hover:scale-105 ' src={smallCvimg} alt="" /> </Link>  */}
+             <Link to='/templates'><img className ='cv   h-64 w-44 shadow-2xl  shadow-zinc-500 rounded-md hover:shadow-sky-300 transition-shadow  hover:scale-105 'src={smallCvimg2} alt="" /> </Link>
             </div>
             
         </section>
         <section className='flex-1 justify-items-center'>
-          <div className='   rounded-full border-2 border-black w-full justify-items-center'>
+          <div className='   rounded-full border-2 border-slate-950 w-full justify-items-center'>
           <div className='   rounded-full border-2 border-black  w-10/12 h-4/6 justify-items-center  '>
           <img  className =' shadow-2xl   'src={bigcvimg} alt="" />
           </div>
