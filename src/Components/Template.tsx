@@ -39,8 +39,8 @@ function Template({ChosenTemp}:TemplateProps) {
     <div>
 
       <h1>Tempate</h1>
-     <div className='flex'>{ templates.map(tem => <div className=' justify-items-center w-fit h-fit' key={tem.id}>{tem.tempName}<div>
-      <Link to='/create'><img src={tem.img} alt="CV-IMAGE" className='h-40 ' onClick={tem.onClick}/></Link></div></div>)}</div>
+     <div className='flex justify-evenly'>{ templates.map(tem => <div className=' justify-items-center w-fit h-fit' key={tem.id}>{tem.tempName}<div>
+      <Link to='/create'><img src={tem.img} alt="CV-IMAGE" className='h-72 hover:scale-105' onClick={tem.onClick}/></Link></div></div>)}</div>
      
     </div>
   )
