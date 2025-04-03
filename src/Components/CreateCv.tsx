@@ -1,118 +1,197 @@
 import React from "react";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
-import * as Yup from "yup";
+// import './deviceSize.css';
 import { Link } from "react-router-dom";
-import { useState } from "react";
-
-interface DisplayTempProp {
-  ChosenTemp: React.ReactNode | null;
+import { useState,  } from "react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+// import useGetDataHook from "../Hooks/getDataHook";
+interface FormData {
+  fullName: string;
+  address: string;
+  phone: string;
+  email: string;
+  jobTitle: string;
+  summary: string;
+  workExperience: Array<{
+    companyName: string;
+    jobTitle: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+    isCurrentJob: boolean;
+    responsibilities: string;
+  }>;
+  education: Array<{
+    schoolName: string;
+    location: string;
+    degree: string;
+    graduationDate: string;
+  }>; 
+  skills: string[];
+  awards: string[];
+  linkedin: string;
 }
-function CreateCv({ ChosenTemp }: DisplayTempProp) {
-  const validationSchema = Yup.object({
-    fullName: Yup.string().required("Full Name is required"),
-    address: Yup.string().required("Address is required"),
-    phone: Yup.string()
-      .matches(
-        /^[0-9]{3} [0-9]{3} [0-9]{4}$/,
-        "Phone must be in the format 123-456-7890"
-      )
-      .required("Phone is required"),
-    email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
-    jobTitle: Yup.string().required("Job Title is required"),
-    summary: Yup.string().required("Summary is required"),
+interface CreateCvProps {
+  ChosenTemp: React.FC<{prop: any}> | null;
+  formData: FormData ;
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>
+}
+function CreateCv({ ChosenTemp,formData, setFormData}: CreateCvProps) {
+  // const validationSchema = Yup.object({
+  //   fullName: Yup.string().required("Full Name is required"),
+  //   address: Yup.string().required("Address is required"),
+   
+    
+      
+  //   email: Yup.string()
+  //     .email("Invalid email address")
+  //     .required("Email is required"),
+  //   jobTitle: Yup.string().required("Job Title is required"),
+  //   summary: Yup.string().required("Summary is required"),
 
-    workExperience: Yup.array().of(
-      Yup.object().shape({
-        companyName: Yup.string().required("Company name is required"),
-        jobTitle: Yup.string().required("Job title is required"),
-        location: Yup.string().required("Location is required"),
-        startDate: Yup.date()
-          .nullable()
-          .required("Start date is required")
-          .typeError("Invalid date format"),
-        endDate: Yup.date()
-          .nullable()
-          .when("isCurrentJob", {
-            is: false,
-            then: (schema) =>
-              schema
-                .required("End date is required")
-                .min(
-                  Yup.ref("startDate"),
-                  "End date must be after the start date"
-                )
-                .typeError("Invalid date format"),
-            otherwise: (schema) => schema.nullable(),
-          }),
-        isCurrentJob: Yup.boolean(),
-        responsibilities: Yup.string().required(
-          "Responsibilities are required"
-        ),
-      })
-    ),
-    education: Yup.object().shape({
-      schoolName: Yup.string().required("School name is required"),
-      location: Yup.string().required("Location is required"),
-      degree: Yup.string().required("Degree/Certificate is required"),
-      graduationDate: Yup.date().required("Graduation date is required"),
-    }),
+  //   workExperience: Yup.array().of(
+  //     Yup.object().shape({
+  //       companyName: Yup.string().required("Company name is required"),
+  //       jobTitle: Yup.string().required("Job title is required"),
+  //       location: Yup.string().required("Location is required"),
+  //       startDate: Yup.date()
+  //         .nullable()
+  //         .required("Start date is required")
+  //         .typeError("Invalid date format"),
+  //       endDate: Yup.date()
+  //         .nullable()
+  //         .when("isCurrentJob", {
+  //           is: false,
+  //           then: (schema) =>
+  //             schema
+  //               .required("End date is required")
+  //               .min(
+  //                 Yup.ref("startDate"),
+  //                 "End date must be after the start date"
+  //               )
+  //               .typeError("Invalid date format"),
+  //           otherwise: (schema) => schema.nullable(),
+  //         }),
+  //       isCurrentJob: Yup.boolean(),
+  //       responsibilities: Yup.string().required(
+  //         "Responsibilities are required"
+  //       ),
+  //     })
+  //   ),
+  //   education: Yup.array().of(Yup.object().shape({
+  //     schoolName: Yup.string().required("School name is required"),
+  //     location: Yup.string().required("Location is required"),
+  //     degree: Yup.string().required("Degree/Certificate is required"),
+  //     graduationDate: Yup.date().required("Graduation date is required"),
+  //   })),
 
-    linkedin: Yup.string().url("Invalid LinkedIn URL"),
-  });
-
+  //   linkedin: Yup.string().url("Invalid LinkedIn URL"),
+  // });
+ 
   const [skillInput, setSkillInput] = useState("");
   const [awardInput, setAwardInput] = useState('');
 
+const handelFieldChange =(e:React.ChangeEvent<HTMLInputElement>, handleChange:(e:React.ChangeEvent<HTMLInputElement>)=>void)=>{
+   const {name,value} = e.target
+  handleChange(e)
+  localStorage.setItem(name,value)
+}
+const downloadPDF = () => {
+  const resumeElement = document.getElementById("cv"); // Target the resume
 
+  if (!resumeElement) return;
+
+  html2canvas(resumeElement, { scale: 2 }).then((canvas) => {
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4"); // Portrait mode, millimeters, A4 size
+
+    const imgWidth = 210; // A4 width in mm
+    const imgHeight = 297; 
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    pdf.save("resume.pdf"); // Download as "resume.pdf"
+  });
+};
+  
   return (
-    <div className="flex justify-around overflow-hidden">
-      <div className=" flex-1  bg-orange-200">
+    <div  id="cvCreator" className="flex sm:block">
+      <div className=" flex-1">
         <Formik
           initialValues={{
-            fullName: "",
-            address: "",
-            phone: "",
-            email: "",
-            jobTitle: "",
-            summary: "",
+            fullName: localStorage.getItem('fullName') || "",
+            address: localStorage.getItem('address') || "",
+            phone: localStorage.getItem('phone') || "",
+            email: localStorage.getItem('email') || "",
+            jobTitle: localStorage.getItem('jobTitle') || "",
+            summary:  localStorage.getItem('summary') || "",
             workExperience: [
               {
-                companyName: "",
-                jobTitle: "",
-                location: "",
-                startDate: "",
-                endDate: "",
-                isCurrentJob: false,
-                responsibilities: "",
+                companyName: localStorage.getItem(`workExperience.0.companyName`) || "",
+                jobTitle:  localStorage.getItem(`workExperience.0.jobTitle`) || "",
+                location:  localStorage.getItem(`workExperience.0.location`) || "",
+                startDate: localStorage.getItem(  `workExperience.0.startDate`) || "",
+                endDate: localStorage.getItem(  `workExperience.0.endDate`) || "",
+                isCurrentJob: localStorage.getItem('workExperience.0.isCurrentJob') === 'false',
+                responsibilities: localStorage.getItem('workExperience.0.responsibilities') || "",
               },
             ],
             education: [
               {
-                schoolName: "",
-                location: "",
-                degree: "",
-                graduationDate: "",
+                schoolName: localStorage.getItem(`education.0.schoolName`) || "",
+                location: localStorage.getItem('education.0.location') || "",
+                degree: localStorage.getItem('education.0.degree') || "",
+                graduationDate: localStorage.getItem('education.0.graduationDate') || "",
               },
             ],
 
             skills: [],
             awards: [],
-            linkedin: "",
+            linkedin: localStorage.getItem('linkedin') || "",
           }}
-          validationSchema={validationSchema}
+          // validationSchema={validationSchema}
+          // validate={(values) => {
+          //   try {
+          //     validationSchema.validateSync(values, { abortEarly: false });
+          //   } catch (error) {
+          //     if (error instanceof Yup.ValidationError) {
+          //       // // console.log(error.errors);
+
+          //     }
+          //   }
+          // }}
           onSubmit={(values) => {
-            alert(JSON.stringify(values));
+           
+            console.log(values);
+           setFormData(values)
+
           }}
         >
-          {({ isSubmitting, values }) => (
-            <Form className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-md">
-              <div className="h-screen overflow-y-auto bg-gray-100 p-4">
+          {({ values ,handleChange }) => (
+            <Form className="max-w-3xl mx-auto pl-4 pr-4 bg-white shadow-md rounded-md ">
+              <div className=" bg-gray-100 h-dvh p-4 overflow-y-scroll">
                 <h1 className="text-2xl font-bold mb-6 text-center">
                   Resume Input Form
                 </h1>
 
+                <div className="mb-4">
+                  <label
+                    htmlFor="fullName"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Full Name
+                  </label>
+                  <Field
+                    name="fullName"
+                    className="mt-1 p-2 border border-gray-300 rounded w-full focus:ring focus:ring-blue-500 focus:border-blue-500"
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                    value={values.fullName}
+                  />
+                  <ErrorMessage
+                    name="fullName"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
                 <div className="mb-4">
                   <label
                     htmlFor="address"
@@ -123,6 +202,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                   <Field
                     name="address"
                     className="mt-1 p-2 border border-gray-300 rounded w-full focus:ring focus:ring-blue-500 focus:border-blue-500"
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                    value={values.address}
                   />
                   <ErrorMessage
                     name="address"
@@ -141,6 +222,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                   <Field
                     name="phone"
                     className="mt-1 p-2 border border-gray-300 rounded w-full focus:ring focus:ring-blue-500 focus:border-blue-500"
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                    value={values.phone}
                   />
                   <ErrorMessage
                     name="phone"
@@ -159,7 +242,9 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                   <Field
                     name="email"
                     type="email"
-                    className="mt-1 p-2 border border-gray-300 rounded w-full focus:ring focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 p-2 border border-gray-300 rounded w-full focus:ring focus:ring-blue-500 focus:border-blue-500"  
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                    value={values.email}
                   />
                   <ErrorMessage
                     name="email"
@@ -178,6 +263,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                   <Field
                     name="jobTitle"
                     className="mt-1 p-2 border border-gray-300 rounded w-full focus:ring focus:ring-blue-500 focus:border-blue-500"
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                    value={values.jobTitle}
                   />
                   <ErrorMessage
                     name="jobTitle"
@@ -198,6 +285,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                     as="textarea"
                     rows="4"
                     className="mt-1 p-2 border border-gray-300 rounded w-full focus:ring focus:ring-blue-500 focus:border-blue-500"
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                    value={values.summary}
                   />
                   <ErrorMessage
                     name="summary"
@@ -237,6 +326,9 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                               <Field
                                 name={`workExperience.${index}.companyName`}
                                 className="mt-1 p-2 border border-gray-300 rounded w-full"
+                                onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                                value={values.workExperience[index].companyName}
+
                               />
                               <ErrorMessage
                                 name={`workExperience.${index}.companyName`}
@@ -255,6 +347,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                               <Field
                                 name={`workExperience.${index}.jobTitle`}
                                 className="mt-1 p-2 border border-gray-300 rounded w-full"
+                                onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                                value={values.workExperience[index].jobTitle}
                               />
                               <ErrorMessage
                                 name={`workExperience.${index}.jobTitle`}
@@ -273,6 +367,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                               <Field
                                 name={`workExperience.${index}.location`}
                                 className="mt-1 p-2 border border-gray-300 rounded w-full"
+                                onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                                value={values.workExperience[index].location}
                               />
                               <ErrorMessage
                                 name={`workExperience.${index}.location`}
@@ -292,6 +388,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                                 type="date"
                                 name={`workExperience.${index}.startDate`}
                                 className="mt-1 p-2 border border-gray-300 rounded w-full"
+                                onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                                value={values.workExperience[index].startDate}
                               />
                               <ErrorMessage
                                 name={`workExperience.${index}.startDate`}
@@ -324,6 +422,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                                 type="date"
                                 name={`workExperience.${index}.endDate`}
                                 className="mt-1 p-2 border border-gray-300 rounded w-full"
+                                onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                                value={values.workExperience[index].endDate}
                               />
                               <ErrorMessage
                                 name={`workExperience.${index}.endDate`}
@@ -343,6 +443,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                                 name={`workExperience.${index}.responsibilities`}
                                 rows="4"
                                 className="mt-1 p-2 border border-gray-300 rounded w-full"
+                                onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                                value={values.workExperience[index].responsibilities}
                               />
                               <ErrorMessage
                                 name={`workExperience.${index}.responsibilities`}
@@ -357,17 +459,18 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                       <button
                         className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md mt-4"
                         type="button"
-                        onClick={() =>
+                        onClick={() =>{ 
+                         const index =0
                           push({
-                            companyName: "",
-                            jobTitle: "",
-                            location: "",
-                            startDate: "",
-                            endDate: "",
-                            isCurrentJob: false,
-                            responsibilities: "",
+                            companyName: localStorage.getItem(`workExperience.${index + 1}.companyName`),
+                            jobTitle: localStorage.getItem(`workExperience.${index + 1}.jobTitle`),
+                            location: localStorage.getItem(`workExperience.${index + 1}.location`),
+                            startDate: localStorage.getItem(`workExperience.${index + 1}.startDate`),
+                            endDate: localStorage.getItem(`workExperience.${index + 1}.endDate`),
+                            isCurrentJob:localStorage.getItem(`workExperience.${index + 1}.isCurrentJob`),
+                            responsibilities: localStorage.getItem(`workExperience.${index + 1}.responsibilities`),
                           })
-                        }
+                        }}
                       >
                         <b>+</b> Add Work
                       </button>
@@ -405,6 +508,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                             <Field
                               name={`education.${index}.schoolName`}
                               className="mt-1 p-2 border border-gray-300 rounded w-full focus:ring focus:ring-blue-500 focus:border-blue-500"
+                              value={values.education[index].schoolName}
+                              onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
                             />
                             <ErrorMessage
                               name={`education.${index}.schoolName`}
@@ -422,6 +527,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                             <Field
                               name={`education.${index}.location`}
                               className="mt-1 p-2 border border-gray-300 rounded w-full focus:ring focus:ring-blue-500 focus:border-blue-500"
+                              value={values.education[index].location}
+                              onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
                             />
                             <ErrorMessage
                               name={`education.${index}.location`}
@@ -439,6 +546,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                             <Field
                               name={`education.${index}.degree`}
                               className="mt-1 p-2 border border-gray-300 rounded w-full focus:ring focus:ring-blue-500 focus:border-blue-500"
+                              value={values.education[index].degree}
+                              onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
                             />
                             <ErrorMessage
                               name={`education.${index}.degree`}
@@ -448,18 +557,20 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                           </div>
                           <div>
                             <label
-                              htmlFor="education.${index}.graduationDate"
+                              htmlFor= {`education.${index}.graduationDate`}
                               className="block text-sm font-medium text-gray-700"
-                            >
+                            > 
                               Graduation Date
                             </label>
                             <Field
-                              name="education.${index}.graduationDate"
+                              name={`education.${index}.graduationDate`}
                               type="date"
                               className="mt-1 p-2 border border-gray-300 rounded w-full focus:ring focus:ring-blue-500 focus:border-blue-500"
+                              value={values.education[index].graduationDate}
+                              onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
                             />
                             <ErrorMessage
-                              name="education.${index}.graduationDate"
+                              name={`education.${index}.graduationDate`}
                               component="div"
                               className="text-red-500 text-sm mt-1"
                             />
@@ -469,14 +580,15 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                       <button
                         className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md mt-4"
                         type="button"
-                        onClick={() =>
+                        onClick={() =>{
+                          let index = 0
                           push({
-                            schoolName: "",
-                            location: "",
-                            degree: "",
-                            graduationDate: "",
+                            schoolName:localStorage.getItem(`education.${index +1}.schoolName`) || "",
+                            location:  localStorage.getItem(`education.${index +1}.location`) || "",
+                            degree:  localStorage.getItem(`education.${index +1}.degree`) || "",
+                            graduationDate:  localStorage.getItem(`education.${index +1}.graduationDate`) || "",
                           })
-                        }
+                        }}
                       >
                         <b>+</b> Add School
                       </button>
@@ -510,6 +622,7 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                           </span>
                         ))}
                         <Field
+                          name="skills"
                           type="text"
                           as="textarea"
                           value={skillInput}
@@ -553,6 +666,7 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                 </span>
               ))}
               <Field
+               name="awards"
                 type="text"
                 as="textarea"
                 value={awardInput}
@@ -577,6 +691,8 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                   <Field
                     name="linkedin"
                     className="mt-1 p-2 border border-gray-300 rounded w-full focus:ring focus:ring-blue-500 focus:border-blue-500"
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>)=> handelFieldChange(e,handleChange)}
+                    value={values.linkedin}
                   />
                   <ErrorMessage
                     name="linkedin"
@@ -584,26 +700,43 @@ function CreateCv({ ChosenTemp }: DisplayTempProp) {
                     className="text-red-500 text-sm mt-1"
                   />
                 </div>
-              </div>
-              <button
+                <button
                 type="submit"
-                disabled={isSubmitting}
+               
                 className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
               >
                 Submit
               </button>
+              </div>
+            
             </Form>
           )}
         </Formik>
       </div>
-      <div className="w-6/12 scale-90">
-        {" "}
+      <div className=" flex-1  flex  justify-center ">
+        
         {ChosenTemp ? (
-          ChosenTemp
+         <div className='  '> <button
+         onClick={downloadPDF}
+         style={{
+           padding: "10px 15px",
+           background: "#007BFF",
+           color: "#fff",
+           border: "none",
+           borderRadius: "5px",
+           cursor: "pointer",
+           marginBottom: "10px",
+         }}
+       >
+         Download as PDF
+       </button><div  id="cv" className="h-fit w-fit"><ChosenTemp  prop={formData}/></div></div>
         ) : (
-          <Link to="/templates">
-            <div> Choose Tamplate</div>
+         <div className="flex justify-center items-center h-screen w-full">
+          <Link to="/templates" className="flex items-center justify-center flex-col"> 
+          <h1 className="text-2xl font-bold mb-6 text-center">Choose Tamplate</h1>
+          <span className="text-7xl">📄</span>
           </Link>
+          </div>
         )}
       </div>
     </div>

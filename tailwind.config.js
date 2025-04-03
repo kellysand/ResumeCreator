@@ -12,6 +12,11 @@ export default {
         
       }
     },
+    screens: {
+      'md': {'max': '1200px'}, 
+      'sm': {'max': '700px'},  
+      'xs': {'max': '500px'},
+    },
   },
   plugins: [],
 }
