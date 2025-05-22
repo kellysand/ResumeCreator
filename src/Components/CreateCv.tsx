@@ -4,7 +4,9 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { Link } from "react-router-dom";
 import { useState,  } from "react";
 import html2canvas from "html2canvas";
+import html2pdf from "html2pdf.js";
 import jsPDF from "jspdf";
+import { useRef } from "react";
 // import useGetDataHook from "../Hooks/getDataHook";
 interface FormData {
   fullName: string;
@@ -97,9 +99,9 @@ const handelFieldChange =(e:React.ChangeEvent<HTMLInputElement>, handleChange:(e
   handleChange(e)
   localStorage.setItem(name,value)
 }
+const contentRef = useRef<HTMLDivElement | null>(null); 
 const downloadPDF = () => {
-  const resumeElement = document.getElementById("cv"); // Target the resume
-
+  const resumeElement =contentRef.current
   if (!resumeElement) return;
 
   html2canvas(resumeElement, { scale: 2 }).then((canvas) => {
@@ -112,6 +114,10 @@ const downloadPDF = () => {
     pdf.save("resume.pdf"); // Download as "resume.pdf"
   });
 };
+
+
+ 
+  
   
   return (
     <div  id="cvCreator" className="flex sm:block">
@@ -729,7 +735,7 @@ const downloadPDF = () => {
          }}
        >
          Download as PDF
-       </button><div  id="cv" className="h-fit w-fit"><ChosenTemp  prop={formData}/></div></div>
+       </button><div ref={contentRef} id="cv" className="h-fit w-fit"><ChosenTemp  prop={formData}/></div></div>
         ) : (
          <div className="flex justify-center items-center h-screen w-full">
           <Link to="/templates" className="flex items-center justify-center flex-col"> 
