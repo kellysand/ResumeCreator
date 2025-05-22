@@ -4,7 +4,7 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { Link } from "react-router-dom";
 import { useState,  } from "react";
 import html2canvas from "html2canvas";
-import html2pdf from "html2pdf.js";
+//import html2pdf from "html2pdf.js";
 import jsPDF from "jspdf";
 import { useRef } from "react";
 // import useGetDataHook from "../Hooks/getDataHook";

@@ -1,10 +1,10 @@
 
 import { Link } from 'react-router-dom';
 import  './nav.css'
-import { useState } from 'react';
+//import { useState ,useRef} from 'react';
 function NavBar() {
-  const [navCheck, setNavCheck] = useState(false)
-  console.log(navCheck)
+  //const [navCheck, setNavCheck] = useState(false)
+ let navCheck =false
 
   return (
    

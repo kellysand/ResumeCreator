@@ -1,4 +1,4 @@
-import smallCvimg from "../assets/image/smallCvimg.png";
+//import smallCvimg from "../assets/image/smallCvimg.png";
 import smallCvimg2 from "../assets/image/Screenshot 2024-11-12 224126.png";
 import bigcvimg from "../assets/image/Bigcvimg.png";
 import "./Home.css";
